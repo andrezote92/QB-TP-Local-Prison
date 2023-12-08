@@ -37,7 +37,7 @@ RegisterServerEvent('localPrison:server:jailPlayer', function(jailed)
 
     local OtherPlayer = QBCore.Functions.GetPlayer(crim)
     if not OtherPlayer then return end
-    local otherName = OtherPlayer.PlayerData.charinfo.firstname..' ' ..OtherPlayer.PlayerData.charinfo.lastname,
+    local otherName = OtherPlayer.PlayerData.charinfo.firstname..' ' ..OtherPlayer.PlayerData.charinfo.lastname
 
     local currentDate = os.date('*t')
     if currentDate.day == 31 then
