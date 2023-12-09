@@ -1,53 +1,69 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
-RegisterCommand('jail1', function(source, args, rawCommand) 
-    local playerId = tonumber(args[1])
-    local time = tonumber(args[2])
+RegisterNetEvent('localPrison:client:jailInput', function(nearbyPlayers)
+    QBCore.Functions.TriggerCallback('localPrison:server:nearbyPlayers', function(nearbyPlayers)
+        if next(nearbyPlayers) ~= nil then
+            local cells = {}
+            for k, v in pairs(Config.Cells) do cells[#cells +1] = {value = k, text = v.label} end
+            --exports['rpemotes']:EmoteCommandStart('tablet2')
+            local dialog = exports['qb-input']:ShowInput({
+                header = 'Nearby Citizens',
+                submitText = 'Send to Jail',
+                inputs = {
+                    {
+                        text = 'Civilian',
+                        name = 'criminal',
+                        type = 'select',
+                        isRequired = true,
+                        options = nearbyPlayers
+                    },
+                    {
+                        text = 'Local Cell',
+                        name = 'cell',
+                        type = 'select',
+                        isRequired = true,
+                        options = cells
+                    },
+                    {
+                        text = 'Jail Time (minutes)',
+                        name = 'jailTime',
+                        type = 'number',
+                        isRequired = true,
+                        default = 1,
+                    },
+                },
+            })
+            if dialog then
+                local jailed = {
+                    crim = dialog.criminal,
+                    cell = dialog.cell,
+                    time = dialog.jailTime,
+                }
+                TriggerServerEvent('localPrison:server:jailPlayer', jailed)
+            end
+            --exports['rpemotes']:EmoteCancel(true)
+        else
+            QBCore.Functions.Notify('Nobody nearby to jail', 'error')
+        end
+    end)
+end)
 
-    if playerId and time then
-        TriggerServerEvent('teleportPlayerToJail', playerId, 'jail1', time)
-    else
-        print('Uso: /jail1 [ID] [TIEMPO]')
-    end
-end, false)
+RegisterNetEvent('localPrison:client:sendToCell', function(cell, time)
+    local ped = PlayerPedId()
+    local x, y, z, w = table.unpack(Config.Cells[cell].inside)
+    DoScreenFadeOut(500)
+    SetEntityCoords(ped, x, y, z, false, false, true, false)
+    SetEntityHeading(ped, w)
+    Wait(1500)
+    DoScreenFadeIn(500)
 
-RegisterCommand('jail2', function(source, args, rawCommand)
-    local playerId = tonumber(args[1])
-    local time = tonumber(args[2])
-
-    if playerId and time then
-        TriggerServerEvent('teleportPlayerToJail', playerId, 'jail2', time)
-    else
-        print('Uso: /jail2 [ID] [TIEMPO]')
-    end
-end, false)
-
-RegisterCommand('jail3', function(source, args, rawCommand)
-    local playerId = tonumber(args[1])
-    local time = tonumber(args[2])
-
-    if playerId and time then
-        TriggerServerEvent('teleportPlayerToJail', playerId, 'jail3', time)
-    else
-        print('Uso: /jail3 [ID] [TIEMPO]')
-    end
-end, false)
-
-RegisterCommand('jail4', function(source, args, rawCommand)
-    local playerId = tonumber(args[1])
-    local time = tonumber(args[2])
-
-    if playerId and time then
-        TriggerServerEvent('teleportPlayerToJail', playerId, 'jail4', time)
-    else
-        print('Uso: /jail4 [ID] [TIEMPO]')
-    end
-end, false)
-
-RegisterNetEvent('teleportToCoords')
-AddEventHandler('teleportToCoords', function(x, y, z)
-    local playerPed = GetPlayerPed(-1)
-    if playerPed and playerPed ~= -1 then
-        SetEntityCoords(playerPed, x, y, z, false, false, false, false)
-    end
+    SetTimeout(time * 60000, function()
+        local x, y, z, w = table.unpack(Config.Cells[cell].outside)
+        QBCore.Functions.Notify('Your time is up!', 'success')
+        DoScreenFadeOut(500)
+        SetEntityCoords(ped, x, y, z, false, false, true, false)
+        SetEntityHeading(ped, w)
+        Wait(1500)
+        DoScreenFadeIn(500)
+    end)
 end)
