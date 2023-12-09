@@ -49,6 +49,6 @@ RegisterServerEvent('localPrison:server:jailPlayer', function(jailed)
         ['hasRecord'] = true,
         ['date'] = currentDate
     })
-    TriggerClientEvent('localPrison:client:sendToCell', OtherPlayer.PlayerData.source, time)
+    TriggerClientEvent('localPrison:client:sendToCell', OtherPlayer.PlayerData.source, cell, time)
     TriggerClientEvent('QBCore:Notify', src, otherName .. ' has been sent to Cell #' .. cell .. ' for ' .. time .. ' minutes.')
 end)

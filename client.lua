@@ -4,7 +4,7 @@ RegisterNetEvent('localPrison:client:jailInput', function(nearbyPlayers)
     QBCore.Functions.TriggerCallback('localPrison:server:nearbyPlayers', function(nearbyPlayers)
         if next(nearbyPlayers) ~= nil then
             local cells = {}
-            for k in pairs(Config.Cells) do cells[#cells +1] = {value = k, text = 'Cell #'..k} end
+            for k, v in pairs(Config.Cells) do cells[#cells +1] = {value = k, text = v.label} end
             --exports['rpemotes']:EmoteCommandStart('tablet2')
             local dialog = exports['qb-input']:ShowInput({
                 header = 'Nearby Citizens',
@@ -50,18 +50,20 @@ end)
 
 RegisterNetEvent('localPrison:client:sendToCell', function(cell, time)
     local ped = PlayerPedId()
-    local x, y, z, h = table.unpack(Config.Cells[cell].inside)
+    local x, y, z, w = table.unpack(Config.Cells[cell].inside)
     DoScreenFadeOut(500)
     SetEntityCoords(ped, x, y, z, false, false, true, false)
     SetEntityHeading(ped, w)
-    DoScreenFadeIn(1000)
+    Wait(1500)
+    DoScreenFadeIn(500)
 
     SetTimeout(time * 60000, function()
-        local x, y, z, h = table.unpack(Config.Cells[cell].outside)
+        local x, y, z, w = table.unpack(Config.Cells[cell].outside)
         QBCore.Functions.Notify('Your time is up!', 'success')
         DoScreenFadeOut(500)
         SetEntityCoords(ped, x, y, z, false, false, true, false)
         SetEntityHeading(ped, w)
-        DoScreenFadeIn(1000)
+        Wait(1500)
+        DoScreenFadeIn(500)
     end)
 end)
